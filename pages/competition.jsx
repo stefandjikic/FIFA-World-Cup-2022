@@ -1,13 +1,10 @@
 import React from "react";
-import { getFirestore, collection, addDoc, doc } from "firebase/firestore";
+import { getFirestore, collection } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import {
   Box,
   Container,
   Flex,
-  Radio,
-  RadioGroup,
-  Stack,
 } from "@chakra-ui/react";
 import Nav from "../components/layout/Nav";
 import { getAuth } from "firebase/auth";
@@ -25,14 +22,6 @@ const Competition = () => {
     id: doc.id,
   }));
 
-// const addVote  = async (vote, teamA, teamB) => {
-//   await addDoc(doc(db, collectionRef, authData.currentUser.uid ), {
-//     result: vote,
-//     teamA,
-//     teamB
-//   })
-// }
-
   return (
     <Box bg="#EEEEE4">
       <Nav />
@@ -48,13 +37,8 @@ const Competition = () => {
                 <Box>-</Box>
                 <Box>{doc.data.teamB}</Box>
               </Flex>
-              <RadioGroup id={doc.id}>
-                <Stack direction="row">
-                  <Radio value={doc.data.teamA}>{doc.data.teamA}</Radio>
-                  <Radio value="Nereseno">Nerešeno</Radio>
-                  <Radio value={doc.data.teamB}>{doc.data.teamB}</Radio>
-                </Stack>
-              </RadioGroup>
+              <Box>{doc?.data?.voterName}</Box>
+              <Box>{doc?.data?.final}</Box>
             </Flex>
           ))}
       </Container>
