@@ -38,12 +38,27 @@ export default function Home({ scoreResults = [] }) {
     id: doc.id,
   }));
 
-
   // console.log(scoreResults, "scoreResults");
-  console.log(user?.uid, "user.uid");
+  // console.log(user?.uid, "user.uid");
 
-  const handleChange = (idMatch, teamA, teamB, final, voterID, voterName) => {
-    setActiveMatch({ idMatch, teamA, teamB, final, voterID, voterName });
+  const handleChange = (
+    idMatch,
+    teamA,
+    teamB,
+    matchDate,
+    final,
+    voterID,
+    voterName
+  ) => {
+    setActiveMatch({
+      idMatch,
+      teamA,
+      teamB,
+      matchDate,
+      final,
+      voterID,
+      voterName,
+    });
     // console.log({idMatch, teamA, teamB, final})
   };
 
@@ -77,29 +92,61 @@ export default function Home({ scoreResults = [] }) {
             Dobro Došli!
           </Heading>
           {displayName && (
-            <Box textAlign="center">{displayName || "Korisniče"}</Box>
+            <Box textAlign="center" fontWeight="bold">
+              {displayName || "Korisniče"}
+            </Box>
           )}
-          <Flex>
-            <Link href="/competition">Sportska Prognoza</Link>
+          <Flex justifyContent="center" mt="5" mb="10">
+            <Link href="/competition" passHref>
+              <Box border="1px" borderColor="#550265" borderRadius="md" p="2">
+                Rezultati Glasanja
+              </Box>
+            </Link>
           </Flex>
           <Grid
-            gridTemplateColumns="repeat(2, 1fr)"
+            gridTemplateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
             justifyContent="space-between"
             gap="6"
             mt="5"
           >
             {scoreResults?.length > 0 &&
               scoreResults?.map((sc) => (
-                <Box key={sc.IdMatch} mb="4" borderRadius="lg" bg="#fff" p="4">
-                  <Box fontWeight="bold" mb="3">
-                    {new Date(sc?.LocalDate).toLocaleString("de-DE", {
-                      year: "numeric",
-                      month: "numeric",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </Box>
+                <Box
+                  key={sc.IdMatch}
+                  mb="4"
+                  borderRadius="lg"
+                  bg="#fff"
+                  p="4"
+                  opacity={
+                    new Date(sc?.LocalDate).getTime() <= new Date().getTime() ||
+                    new Date(sc?.LocalDate).getTime() >
+                      new Date(new Date().setDate(new Date().getDate() + 1))
+                      ? 0.7
+                      : 1
+                  }
+                >
+                  <Flex justifyContent="space-between">
+                    <Box fontWeight="bold" mb="3">
+                      {new Date(sc?.LocalDate).toLocaleString("de-DE", {
+                        year: "numeric",
+                        month: "numeric",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </Box>
+                    <Box>
+                      {matchesFromFirebaseCollection?.find(
+                        (m) =>
+                          m?.data?.idMatch === sc?.IdMatch &&
+                          m?.data?.voterID === user?.uid
+                      ) && <Badge colorScheme="purple">Glasao</Badge>}
+                      {new Date(sc?.LocalDate).getTime() >
+                        new Date(
+                          new Date().setDate(new Date().getDate() + 1)
+                        ) && <Badge colorScheme="yellow">Uskoro</Badge>}
+                    </Box>
+                  </Flex>
                   <Box>
                     <Flex justifyContent="space-between">
                       <Box>{sc?.Home?.Abbreviation}</Box>
@@ -116,20 +163,28 @@ export default function Home({ scoreResults = [] }) {
                         sc?.IdMatch,
                         sc?.Home?.ShortClubName,
                         sc?.Away?.ShortClubName,
+                        sc?.LocalDate,
                         value,
                         user?.uid,
                         user?.displayName
                       )
                     }
                     isDisabled={
-                      matchesFromFirebaseCollection
-                        ?.find((m) => m?.data?.idMatch === sc?.IdMatch && m?.data?.voterID === user?.uid)
+                      matchesFromFirebaseCollection?.find(
+                        (m) =>
+                          m?.data?.idMatch === sc?.IdMatch &&
+                          m?.data?.voterID === user?.uid
+                      ) ||
+                      new Date(sc?.LocalDate).getTime() <=
+                        new Date().getTime() ||
+                      new Date(sc?.LocalDate).getTime() >
+                        new Date(new Date().setDate(new Date().getDate() + 1))
                     }
                     //  value={matchesFromFirebaseCollection?.find((m) => m?.data?.IdMatch === sc?.idMatch).data.final || ''}
                   >
                     <Flex
                       mt="5"
-                      flexDirection="row"
+                      flexDirection={{ base: "column", md: "row" }}
                       justifyContent="space-between"
                     >
                       <Radio value={sc?.Home?.ShortClubName}>
@@ -140,9 +195,19 @@ export default function Home({ scoreResults = [] }) {
                         {sc?.Away?.ShortClubName}
                       </Radio>
                       <Button
+                        mt={{ base: "5", md: "0" }}
                         disabled={
-                          matchesFromFirebaseCollection
-                        ?.find((m) => m?.data?.idMatch === sc?.IdMatch && m?.data?.voterID === user?.uid)
+                          matchesFromFirebaseCollection?.find(
+                            (m) =>
+                              m?.data?.idMatch === sc?.IdMatch &&
+                              m?.data?.voterID === user?.uid
+                          ) ||
+                          new Date(sc?.LocalDate).getTime() <=
+                            new Date().getTime() ||
+                          new Date(sc?.LocalDate).getTime() >
+                            new Date(
+                              new Date().setDate(new Date().getDate() + 1)
+                            )
                         }
                         onClick={addVote}
                         borderRadius="2xl"
