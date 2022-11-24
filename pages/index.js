@@ -199,8 +199,8 @@ export default function Home({ scoreResults = [] }) {
                       new Date(sc?.Date).getTime() >
                         new Date(
                           new Date().setDate(new Date().getDate() + 1)
-                        ) ||
-                      checkTimeBeforeGameStart()
+                        ) 
+                        // || checkTimeBeforeGameStart()
                     }
                     //  value=''
                   >
@@ -229,8 +229,8 @@ export default function Home({ scoreResults = [] }) {
                           new Date(sc?.Date).getTime() >
                             new Date(
                               new Date().setDate(new Date().getDate() + 1)
-                            ) ||
-                          checkTimeBeforeGameStart()
+                            ) 
+                            // || checkTimeBeforeGameStart()
                         }
                         onClick={addVote}
                         borderRadius="2xl"
