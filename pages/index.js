@@ -41,6 +41,26 @@ export default function Home({ scoreResults = [] }) {
   // console.log(scoreResults, "scoreResults");
   // console.log(user?.uid, "user.uid");
 
+  const checkTimeBeforeGameStart = () => {
+    var curTime = new Date();
+    var day = curTime.getDay();
+    curTime = parseInt(
+      curTime.getHours() +
+        "" +
+        ("0" + curTime.getMinutes()).substr(-2) +
+        "" +
+        ("0" + curTime.getSeconds()).substr(-2)
+    );
+
+    if (curTime > 103000 && day > 0 && day < 6) {
+      // console.log("It's a good time!");
+      return true;
+    } else {
+      // console.log("It's not a good time!");
+      return false;
+    }
+  };
+
   const handleChange = (
     idMatch,
     teamA,
@@ -118,8 +138,8 @@ export default function Home({ scoreResults = [] }) {
                   bg="#fff"
                   p="4"
                   opacity={
-                    new Date(sc?.LocalDate).getTime() <= new Date().getTime() ||
-                    new Date(sc?.LocalDate).getTime() >
+                    new Date(sc?.Date).getTime() <= new Date().getTime() ||
+                    new Date(sc?.Date).getTime() >
                       new Date(new Date().setDate(new Date().getDate() + 1))
                       ? 0.7
                       : 1
@@ -127,7 +147,7 @@ export default function Home({ scoreResults = [] }) {
                 >
                   <Flex justifyContent="space-between">
                     <Box fontWeight="bold" mb="3">
-                      {new Date(sc?.LocalDate).toLocaleString("de-DE", {
+                      {new Date(sc?.Date).toLocaleString("de-DE", {
                         year: "numeric",
                         month: "numeric",
                         day: "numeric",
@@ -141,7 +161,7 @@ export default function Home({ scoreResults = [] }) {
                           m?.data?.idMatch === sc?.IdMatch &&
                           m?.data?.voterID === user?.uid
                       ) && <Badge colorScheme="purple">Glasao</Badge>}
-                      {new Date(sc?.LocalDate).getTime() >
+                      {new Date(sc?.Date).getTime() >
                         new Date(
                           new Date().setDate(new Date().getDate() + 1)
                         ) && <Badge colorScheme="yellow">Uskoro</Badge>}
@@ -163,7 +183,7 @@ export default function Home({ scoreResults = [] }) {
                         sc?.IdMatch,
                         sc?.Home?.ShortClubName,
                         sc?.Away?.ShortClubName,
-                        sc?.LocalDate,
+                        sc?.Date,
                         value,
                         user?.uid,
                         user?.displayName
@@ -175,12 +195,14 @@ export default function Home({ scoreResults = [] }) {
                           m?.data?.idMatch === sc?.IdMatch &&
                           m?.data?.voterID === user?.uid
                       ) ||
-                      new Date(sc?.LocalDate).getTime() <=
-                        new Date().getTime() ||
-                      new Date(sc?.LocalDate).getTime() >
-                        new Date(new Date().setDate(new Date().getDate() + 1))
+                      new Date(sc?.Date).getTime() <= new Date().getTime() ||
+                      new Date(sc?.Date).getTime() >
+                        new Date(
+                          new Date().setDate(new Date().getDate() + 1)
+                        ) ||
+                      checkTimeBeforeGameStart()
                     }
-                    //  value={matchesFromFirebaseCollection?.find((m) => m?.data?.IdMatch === sc?.idMatch).data.final || ''}
+                    //  value=''
                   >
                     <Flex
                       mt="5"
@@ -202,12 +224,13 @@ export default function Home({ scoreResults = [] }) {
                               m?.data?.idMatch === sc?.IdMatch &&
                               m?.data?.voterID === user?.uid
                           ) ||
-                          new Date(sc?.LocalDate).getTime() <=
+                          new Date(sc?.Date).getTime() <=
                             new Date().getTime() ||
-                          new Date(sc?.LocalDate).getTime() >
+                          new Date(sc?.Date).getTime() >
                             new Date(
                               new Date().setDate(new Date().getDate() + 1)
-                            )
+                            ) ||
+                          checkTimeBeforeGameStart()
                         }
                         onClick={addVote}
                         borderRadius="2xl"
