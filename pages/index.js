@@ -127,13 +127,37 @@ export default function Home({ scoreResults = [] }) {
               {displayName || "Korisniče"}
             </Box>
           )}
-          <Flex justifyContent="center" mt="5" mb="10">
+          <Flex
+            justifyContent="center"
+            mt="5"
+            mb="10"
+            display={{ base: "none", md: "flex" }}
+          >
             <Link href="/competition" passHref>
               <Box border="1px" borderColor="#550265" borderRadius="md" p="2">
                 Rezultati Glasanja
               </Box>
             </Link>
           </Flex>
+          <Link href="/competition" passHref>
+            <Flex
+              display={{ base: "flex", md: "none" }}
+              mt="5"
+              justifyContent="center"
+              alignItems="center"
+              position="sticky"
+              top="10px"
+              p="2"
+              bg="#550265"
+              color="#fff"
+              borderRadius="md"
+              fontSize="xs"
+              boxShadow="xl"
+              zIndex='999'
+            >
+              Rezultati
+            </Flex>
+          </Link>
           <Grid
             gridTemplateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
             justifyContent="space-between"
@@ -206,13 +230,10 @@ export default function Home({ scoreResults = [] }) {
                           m?.data?.idMatch === sc?.IdMatch &&
                           m?.data?.voterID === user?.uid
                       ) ||
-                      (sc?.IdMatch !== activeMatch?.idMatch && blockUI)
-                      ||
+                      (sc?.IdMatch !== activeMatch?.idMatch && blockUI) ||
                       // new Date(sc?.Date).getTime() <= new Date().getTime() ||
                       new Date(sc?.Date).getTime() >
-                        new Date(
-                          new Date().setDate(new Date().getDate() + 1)
-                        )
+                        new Date(new Date().setDate(new Date().getDate() + 1))
                       // checkTimeBeforeGameStart(sc?.Date)
                     }
                     //  value=''
@@ -237,14 +258,13 @@ export default function Home({ scoreResults = [] }) {
                               m?.data?.idMatch === sc?.IdMatch &&
                               m?.data?.voterID === user?.uid
                           ) ||
-                          (sc?.IdMatch !== activeMatch?.idMatch && blockUI)
-                          ||
+                          (sc?.IdMatch !== activeMatch?.idMatch && blockUI) ||
                           // new Date(sc?.Date).getTime() <=
                           //   new Date().getTime() ||
                           new Date(sc?.Date).getTime() >
                             new Date(
                               new Date().setDate(new Date().getDate() + 1)
-                            ) 
+                            )
                           // checkTimeBeforeGameStart(sc?.Date)
                         }
                         onClick={addVote}
