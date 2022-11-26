@@ -207,12 +207,12 @@ export default function Home({ scoreResults = [] }) {
                           m?.data?.voterID === user?.uid
                       ) ||
                       (sc?.IdMatch !== activeMatch?.idMatch && blockUI)
-                      // ||
+                      ||
                       // new Date(sc?.Date).getTime() <= new Date().getTime() ||
-                      // new Date(sc?.Date).getTime() >
-                      //   new Date(
-                      //     new Date().setDate(new Date().getDate() + 1)
-                      //   ) ||
+                      new Date(sc?.Date).getTime() >
+                        new Date(
+                          new Date().setDate(new Date().getDate() + 1)
+                        )
                       // checkTimeBeforeGameStart(sc?.Date)
                     }
                     //  value=''
@@ -238,13 +238,13 @@ export default function Home({ scoreResults = [] }) {
                               m?.data?.voterID === user?.uid
                           ) ||
                           (sc?.IdMatch !== activeMatch?.idMatch && blockUI)
-                          // ||
+                          ||
                           // new Date(sc?.Date).getTime() <=
                           //   new Date().getTime() ||
-                          // new Date(sc?.Date).getTime() >
-                          //   new Date(
-                          //     new Date().setDate(new Date().getDate() + 1)
-                          //   ) ||
+                          new Date(sc?.Date).getTime() >
+                            new Date(
+                              new Date().setDate(new Date().getDate() + 1)
+                            ) 
                           // checkTimeBeforeGameStart(sc?.Date)
                         }
                         onClick={addVote}
