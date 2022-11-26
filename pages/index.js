@@ -27,6 +27,7 @@ import { useState } from "react";
 
 export default function Home({ scoreResults = [] }) {
   const [activeMatch, setActiveMatch] = useState({});
+  const [blockUI, setBlockUI] = useState(false);
   const auth = getAuth();
   const db = getFirestore();
   const collectionRef = collection(db, "matches");
@@ -41,7 +42,7 @@ export default function Home({ scoreResults = [] }) {
   // console.log(scoreResults, "scoreResults");
   // console.log(user?.uid, "user.uid");
 
-  const checkTimeBeforeGameStart = () => {
+  const checkTimeBeforeGameStart = (matchDate) => {
     var curTime = new Date();
     var day = curTime.getDay();
     curTime = parseInt(
@@ -51,8 +52,16 @@ export default function Home({ scoreResults = [] }) {
         "" +
         ("0" + curTime.getSeconds()).substr(-2)
     );
+    // var matchHours = new Date(matchDate);
+    // matchHours = parseInt(matchHours.getHours()+
+    // "" +
+    // ("0" + matchHours.getMinutes()).substr(-2) +
+    // "" +
+    // ("0" + matchHours.getSeconds()).substr(-2))
 
-    if (curTime > 103000 && day > 0 && day < 6) {
+    // curTime > 110000 && day > 0 && day < 6
+    // curTime > matchHours
+    if (curTime > 110000 && day > 0 && day < 6) {
       // console.log("It's a good time!");
       return true;
     } else {
@@ -79,13 +88,14 @@ export default function Home({ scoreResults = [] }) {
       voterID,
       voterName,
     });
-    // console.log({idMatch, teamA, teamB, final})
   };
 
   const addVote = async () => {
-    console.log(activeMatch, "activeMatch");
-    await addDoc(collection(db, "matches"), activeMatch);
-    console.log(matchesFromFirebaseCollection, "matchesFromFirebaseCollection");
+    setBlockUI(true);
+    await addDoc(collection(db, "matches"), activeMatch).then(() =>
+      setBlockUI(false)
+    );
+    // console.log(matchesFromFirebaseCollection, "matchesFromFirebaseCollection");
   };
 
   return (
@@ -199,8 +209,9 @@ export default function Home({ scoreResults = [] }) {
                       new Date(sc?.Date).getTime() >
                         new Date(
                           new Date().setDate(new Date().getDate() + 1)
-                        ) 
-                        // || checkTimeBeforeGameStart()
+                        ) ||
+                      blockUI ||
+                      checkTimeBeforeGameStart(sc?.Date)
                     }
                     //  value=''
                   >
@@ -229,8 +240,9 @@ export default function Home({ scoreResults = [] }) {
                           new Date(sc?.Date).getTime() >
                             new Date(
                               new Date().setDate(new Date().getDate() + 1)
-                            ) 
-                            // || checkTimeBeforeGameStart()
+                            ) ||
+                          blockUI ||
+                          checkTimeBeforeGameStart(sc?.Date)
                         }
                         onClick={addVote}
                         borderRadius="2xl"

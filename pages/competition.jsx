@@ -1,16 +1,19 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { getFirestore, collection } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import {
   Box,
   Container,
-  Flex,
+  Tab,
   Table,
-  TableCaption,
   TableContainer,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Tbody,
   Td,
-  Tfoot,
+  Text,
   Th,
   Thead,
   Tr,
@@ -27,6 +30,8 @@ const Competition = ({ scoreResults = [] }) => {
   const authData = getAuth();
   // console.log(authData, "authdata");
 
+  const [userPoints, setUserPoints] = useState([]);
+
   const [user] = useAuthState(authData);
 
   const [matchesData, matchesLoading, matchesError] =
@@ -38,18 +43,7 @@ const Competition = ({ scoreResults = [] }) => {
   // console.log(matches, "matches");
   // console.log(scoreResults, "scoreResults");
 
-  const calculateResult = (id) => {
-    const selectedMatch = scoreResults?.find((sr) => sr?.IdMatch === id);
-    if (
-      selectedMatch?.Home?.Score !== null &&
-      selectedMatch?.Away?.Score !== null
-    ) {
-      return selectedMatch?.Home?.Score + ":" + selectedMatch.Away?.Score;
-    }
-  };
-
-  const calculatePlayerPoints = (id, playersAnswer) => {
-    const selectedMatch = scoreResults?.find((sr) => sr?.IdMatch === id);
+  const calculatePlayerPointPerGame = (selectedMatch, playersAnswer) => {
     let matchResult = "";
     if (
       selectedMatch?.Home?.Score === null &&
@@ -60,15 +54,84 @@ const Competition = ({ scoreResults = [] }) => {
       matchResult = selectedMatch.Away?.ShortClubName;
     } else if (selectedMatch?.Home?.Score > selectedMatch.Away?.Score) {
       matchResult = selectedMatch.Home?.ShortClubName;
-    } else matchResult === "Nereseno";
+    } else if (selectedMatch?.Home?.Score === selectedMatch.Away?.Score) {
+      matchResult = "Nereseno";
+    }
     if (matchResult === "NOT_PLAYED") {
-      return "";
+      return null;
     } else if (playersAnswer !== matchResult) {
       return 0;
     } else if (playersAnswer === matchResult) {
       return 1;
     }
   };
+
+  const returnUsersVotesData = useMemo(() => {
+    let matchesPlayedbyUSers = [];
+    scoreResults?.forEach((sr) => {
+      matches?.forEach((doc) => {
+        if (sr?.IdMatch === doc?.data?.idMatch) {
+          const userObject = {
+            id: doc?.id,
+            user: doc?.data?.voterName,
+            userID: doc?.data?.voterID,
+            matchDate: doc?.data?.matchDate,
+            matchID: doc?.data?.idMatch,
+            match: doc?.data?.teamA + "-" + doc?.data?.teamB,
+            userVoted: doc?.data?.final,
+            gameScore:
+              sr?.Home?.Score !== null && sr?.Away?.Score !== null
+                ? sr?.Home?.Score + ":" + sr.Away?.Score
+                : "/",
+            userScore: calculatePlayerPointPerGame(sr, doc?.data?.final),
+          };
+          matchesPlayedbyUSers.push(userObject);
+        }
+      });
+    });
+    return matchesPlayedbyUSers;
+  }, [matches, scoreResults]);
+
+  const claculateTotalPointsPerUser = useCallback(
+    (userID) => {
+      let arrayOfUserPoint = [];
+      returnUsersVotesData?.forEach((user) => {
+        if (user?.userID === userID) {
+          arrayOfUserPoint = [...arrayOfUserPoint, user?.userScore];
+        }
+      });
+      const totalScore = arrayOfUserPoint.reduce((prevValue, currentValue) => {
+        return prevValue + currentValue;
+      }, 0);
+      console.log(totalScore, "totalScore");
+      return totalScore;
+    },
+    [returnUsersVotesData]
+  );
+
+  const parsedUsers = useMemo(() => {
+    if (returnUsersVotesData?.length > 0) {
+      const filteredMathcesByUserId = returnUsersVotesData?.reduce(function (
+        p,
+        c
+      ) {
+        if (
+          !p.some(function (el) {
+            return el?.userID === c?.userID;
+          })
+        )
+          p.push(c);
+        return p;
+      },
+      []);
+      const uniqueUsers = filteredMathcesByUserId?.map((userDoc) => ({
+        user: userDoc?.user,
+        id: userDoc?.userID,
+        totalScore: claculateTotalPointsPerUser(userDoc?.userID),
+      }));
+      return uniqueUsers?.sort((a, b) => b?.totalScore - a?.totalScore);
+    }
+  }, [claculateTotalPointsPerUser, returnUsersVotesData]);
 
   return (
     <Box bg="#EEEEE4">
@@ -84,54 +147,90 @@ const Competition = ({ scoreResults = [] }) => {
         )}
         {!matchesLoading && !user && <Login />}
         {!matchesLoading && user && matches?.length > 0 && (
-          <TableContainer mt="10">
+          <Tabs variant="soft-rounded" colorScheme="purple" mt="5">
             <Link href="/">⬅ Nazad na mečeve</Link>
-            <Table
-              size={{ base: "sm", md: "md" }}
-              mt="5"
-              variant="simple"
-              bg="#fff"
-            >
-              <TableCaption>Tabela glasova</TableCaption>
-              <Thead>
-                <Tr>
-                  <Th>Utakmica</Th>
-                  <Th>Datum</Th>
-                  <Th>Takmičar</Th>
-                  <Th>Glasao</Th>
-                  <Th>Ishod</Th>
-                  <Th textAlign="center">Poeni</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {matches?.map((doc) => (
-                  <Tr key={doc?.id}>
-                    <Td>
-                      {doc?.data.teamA} - {doc?.data?.teamB}
-                    </Td>
-                    <Td>
-                      {new Date(doc?.data?.matchDate).toLocaleString("de-DE", {
-                        year: "numeric",
-                        month: "numeric",
-                        day: "numeric",
-                        // hour: "2-digit",
-                        // minute: "numeric",
-                      })}
-                    </Td>
-                    <Td>{doc?.data?.voterName}</Td>
-                    <Td>{doc?.data?.final}</Td>
-                    <Td>{calculateResult(doc?.data?.idMatch) || "/"}</Td>
-                    <Td textAlign="center">
-                      {calculatePlayerPoints(
-                        doc?.data?.idMatch,
-                        doc?.data?.final
-                      )}
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </TableContainer>
+            <TabList mt="5">
+              <Tab>Glasanja</Tab>
+              <Tab>Rang Lista</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel p="0">
+                <TableContainer>
+                  <Table
+                    size={{ base: "sm", md: "md" }}
+                    mt="5"
+                    variant="simple"
+                    bg="#fff"
+                  >
+                    <Thead>
+                      <Tr>
+                        <Th>Datum</Th>
+                        <Th>Utakmica</Th>
+                        <Th>Takmičar</Th>
+                        <Th>Glasao</Th>
+                        <Th>Ishod</Th>
+                        <Th textAlign="center">Poeni</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {returnUsersVotesData?.map((doc) => (
+                        <Tr key={doc?.id}>
+                          <Td>
+                            {new Date(doc?.matchDate).toLocaleString("de-DE", {
+                              year: "numeric",
+                              month: "numeric",
+                              day: "numeric",
+                            })}
+                          </Td>
+                          <Td>{doc?.match}</Td>
+                          <Td>{doc?.user}</Td>
+                          <Td>{doc?.userVoted}</Td>
+                          <Td>{doc?.gameScore}</Td>
+                          <Td>{doc?.userScore}</Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+              </TabPanel>
+              <TabPanel>
+                <TableContainer>
+                  <Table
+                    size={{ base: "sm", md: "md" }}
+                    mt="5"
+                    variant="simple"
+                    bg="#fff"
+                  >
+                    <Thead>
+                      <Tr>
+                        <Th color="gray.500">#</Th>
+                        <Th>Takmičar</Th>
+                        <Th isNumeric>Rezultat</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {parsedUsers?.map((userDoc, index) => (
+                        <Tr key={userDoc?.id}>
+                          <Td fontSize="sm" color="gray.500">
+                            {index + 1}
+                          </Td>
+                          <Td>
+                            <Text as="span" mr="2">
+                              {userDoc?.user}
+                            </Text>
+                            <Text as="span" display={{base: 'none', md: 'inline-block'}} color="gray.300" fontSize="sm">
+                              #{userDoc?.id?.slice(0, 8)}
+                            </Text>
+                          </Td>
+                          <Td isNumeric>{userDoc?.totalScore}</Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         )}
       </Container>
     </Box>
