@@ -205,13 +205,14 @@ export default function Home({ scoreResults = [] }) {
                           m?.data?.idMatch === sc?.IdMatch &&
                           m?.data?.voterID === user?.uid
                       ) ||
-                      new Date(sc?.Date).getTime() <= new Date().getTime() ||
-                      new Date(sc?.Date).getTime() >
-                        new Date(
-                          new Date().setDate(new Date().getDate() + 1)
-                        ) ||
-                      blockUI ||
-                      checkTimeBeforeGameStart(sc?.Date)
+                      blockUI
+                      // ||
+                      // new Date(sc?.Date).getTime() <= new Date().getTime() ||
+                      // new Date(sc?.Date).getTime() >
+                      //   new Date(
+                      //     new Date().setDate(new Date().getDate() + 1)
+                      //   ) ||
+                      // checkTimeBeforeGameStart(sc?.Date)
                     }
                     //  value=''
                   >
@@ -235,14 +236,15 @@ export default function Home({ scoreResults = [] }) {
                               m?.data?.idMatch === sc?.IdMatch &&
                               m?.data?.voterID === user?.uid
                           ) ||
-                          new Date(sc?.Date).getTime() <=
-                            new Date().getTime() ||
-                          new Date(sc?.Date).getTime() >
-                            new Date(
-                              new Date().setDate(new Date().getDate() + 1)
-                            ) ||
-                          blockUI ||
-                          checkTimeBeforeGameStart(sc?.Date)
+                          blockUI
+                          // ||
+                          // new Date(sc?.Date).getTime() <=
+                          //   new Date().getTime() ||
+                          // new Date(sc?.Date).getTime() >
+                          //   new Date(
+                          //     new Date().setDate(new Date().getDate() + 1)
+                          //   ) ||
+                          // checkTimeBeforeGameStart(sc?.Date)
                         }
                         onClick={addVote}
                         borderRadius="2xl"
