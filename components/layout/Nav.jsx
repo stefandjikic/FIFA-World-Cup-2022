@@ -12,7 +12,7 @@ const Nav = () => {
     <>
       <Box bg="#550265" color="#fff" as="nav" py="4">
         <Container maxW="container.xl">
-          <Flex justifyContent="space-between">
+          <Flex justifyContent="space-between" alignItems='center'>
             <Box><Link href='/'>FIFA World Cup Competition</Link></Box>
             {user && (
               <Box cursor="pointer" onClick={() => auth.signOut()}>

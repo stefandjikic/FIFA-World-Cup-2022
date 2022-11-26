@@ -4,6 +4,7 @@ import { useCollection } from "react-firebase-hooks/firestore";
 import {
   Box,
   Container,
+  Grid,
   Tab,
   Table,
   TableContainer,
@@ -23,6 +24,7 @@ import { getAuth } from "firebase/auth";
 import Link from "next/link";
 import { Login } from "../components/auth/Login";
 import { useAuthState } from "react-firebase-hooks/auth";
+import UserMatchesCard from "../components/matches/UserMatchesCard";
 
 const Competition = ({ scoreResults = [] }) => {
   const db = getFirestore();
@@ -89,7 +91,7 @@ const Competition = ({ scoreResults = [] }) => {
         }
       });
     });
-    return matchesPlayedbyUSers;
+    return matchesPlayedbyUSers?.sort((a, b) => a?.matchDate < b?.matchDate);
   }, [matches, scoreResults]);
 
   const claculateTotalPointsPerUser = useCallback(
@@ -103,8 +105,20 @@ const Competition = ({ scoreResults = [] }) => {
       const totalScore = arrayOfUserPoint.reduce((prevValue, currentValue) => {
         return prevValue + currentValue;
       }, 0);
-      console.log(totalScore, "totalScore");
       return totalScore;
+    },
+    [returnUsersVotesData]
+  );
+
+  const returnAllMatchesPerUser = useCallback(
+    (userID) => {
+      let arrayOfUserMatches = [];
+      returnUsersVotesData?.forEach((user) => {
+        if (user?.userID === userID) {
+          arrayOfUserMatches = [...arrayOfUserMatches, user];
+        }
+      });
+      return arrayOfUserMatches;
     },
     [returnUsersVotesData]
   );
@@ -128,10 +142,17 @@ const Competition = ({ scoreResults = [] }) => {
         user: userDoc?.user,
         id: userDoc?.userID,
         totalScore: claculateTotalPointsPerUser(userDoc?.userID),
+        matchesPerUser: returnAllMatchesPerUser(userDoc?.userID),
       }));
       return uniqueUsers?.sort((a, b) => b?.totalScore - a?.totalScore);
     }
-  }, [claculateTotalPointsPerUser, returnUsersVotesData]);
+  }, [
+    claculateTotalPointsPerUser,
+    returnAllMatchesPerUser,
+    returnUsersVotesData,
+  ]);
+
+  console.log(parsedUsers, "parsedUsers");
 
   return (
     <Box bg="#EEEEE4">
@@ -147,11 +168,17 @@ const Competition = ({ scoreResults = [] }) => {
         )}
         {!matchesLoading && !user && <Login />}
         {!matchesLoading && user && matches?.length > 0 && (
-          <Tabs variant="soft-rounded" colorScheme="purple" mt="5">
+          <Tabs
+            variant="soft-rounded"
+            colorScheme="purple"
+            mt="5"
+            size={{ base: "sm", md: "md" }}
+          >
             <Link href="/">⬅ Nazad na mečeve</Link>
             <TabList mt="5">
               <Tab>Glasanja</Tab>
               <Tab>Rang Lista</Tab>
+              <Tab>Poslednje</Tab>
             </TabList>
             <TabPanels>
               <TabPanel p="0">
@@ -218,7 +245,12 @@ const Competition = ({ scoreResults = [] }) => {
                             <Text as="span" mr="2">
                               {userDoc?.user}
                             </Text>
-                            <Text as="span" display={{base: 'none', md: 'inline-block'}} color="gray.300" fontSize="sm">
+                            <Text
+                              as="span"
+                              display={{ base: "none", md: "inline-block" }}
+                              color="gray.300"
+                              fontSize="sm"
+                            >
                               #{userDoc?.id?.slice(0, 8)}
                             </Text>
                           </Td>
@@ -228,6 +260,25 @@ const Competition = ({ scoreResults = [] }) => {
                     </Tbody>
                   </Table>
                 </TableContainer>
+              </TabPanel>
+              <TabPanel>
+                <Grid
+                  gridTemplateColumns={{
+                    base: "1fr",
+                    md: "repeat(2, 1fr)",
+                    lg: "repeat(3, 1fr)",
+                  }}
+                  gap="2"
+                >
+                  {parsedUsers?.map((userDoc) => (
+                    <UserMatchesCard
+                      key={userDoc?.id}
+                      user={userDoc?.user}
+                      matchesPerUser={userDoc?.matchesPerUser}
+                      totalScore={userDoc?.totalScore}
+                    />
+                  ))}
+                </Grid>
               </TabPanel>
             </TabPanels>
           </Tabs>

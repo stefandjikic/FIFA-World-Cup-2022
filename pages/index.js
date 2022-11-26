@@ -42,33 +42,33 @@ export default function Home({ scoreResults = [] }) {
   // console.log(scoreResults, "scoreResults");
   // console.log(user?.uid, "user.uid");
 
-  const checkTimeBeforeGameStart = (matchDate) => {
-    var curTime = new Date();
-    var day = curTime.getDay();
-    curTime = parseInt(
-      curTime.getHours() +
-        "" +
-        ("0" + curTime.getMinutes()).substr(-2) +
-        "" +
-        ("0" + curTime.getSeconds()).substr(-2)
-    );
-    // var matchHours = new Date(matchDate);
-    // matchHours = parseInt(matchHours.getHours()+
-    // "" +
-    // ("0" + matchHours.getMinutes()).substr(-2) +
-    // "" +
-    // ("0" + matchHours.getSeconds()).substr(-2))
+  // const checkTimeBeforeGameStart = (matchDate) => {
+  //   var curTime = new Date();
+  //   var day = curTime.getDay();
+  //   curTime = parseInt(
+  //     curTime.getHours() +
+  //       "" +
+  //       ("0" + curTime.getMinutes()).substr(-2) +
+  //       "" +
+  //       ("0" + curTime.getSeconds()).substr(-2)
+  //   );
+  //   // var matchHours = new Date(matchDate);
+  //   // matchHours = parseInt(matchHours.getHours()+
+  //   // "" +
+  //   // ("0" + matchHours.getMinutes()).substr(-2) +
+  //   // "" +
+  //   // ("0" + matchHours.getSeconds()).substr(-2))
 
-    // curTime > 110000 && day > 0 && day < 6
-    // curTime > matchHours
-    if (curTime > 110000 && day > 0 && day < 6) {
-      // console.log("It's a good time!");
-      return true;
-    } else {
-      // console.log("It's not a good time!");
-      return false;
-    }
-  };
+  //   // curTime > 110000 && day > 0 && day < 6
+  //   // curTime > matchHours
+  //   if (curTime > 110000 && day > 0 && day < 6) {
+  //     // console.log("It's a good time!");
+  //     return true;
+  //   } else {
+  //     // console.log("It's not a good time!");
+  //     return false;
+  //   }
+  // };
 
   const handleChange = (
     idMatch,
@@ -96,7 +96,6 @@ export default function Home({ scoreResults = [] }) {
     await addDoc(collection(db, "matches"), activeMatch).then(() =>
       setBlockUI(false)
     );
-    // console.log(matchesFromFirebaseCollection, "matchesFromFirebaseCollection");
   };
 
   return (
@@ -153,7 +152,7 @@ export default function Home({ scoreResults = [] }) {
               borderRadius="md"
               fontSize="xs"
               boxShadow="xl"
-              zIndex='999'
+              zIndex="999"
             >
               Rezultati
             </Flex>
@@ -231,7 +230,7 @@ export default function Home({ scoreResults = [] }) {
                           m?.data?.voterID === user?.uid
                       ) ||
                       (sc?.IdMatch !== activeMatch?.idMatch && blockUI) ||
-                      // new Date(sc?.Date).getTime() <= new Date().getTime() ||
+                      new Date(sc?.Date).getTime() <= new Date().getTime() ||
                       new Date(sc?.Date).getTime() >
                         new Date(new Date().setDate(new Date().getDate() + 1))
                       // checkTimeBeforeGameStart(sc?.Date)
@@ -259,8 +258,8 @@ export default function Home({ scoreResults = [] }) {
                               m?.data?.voterID === user?.uid
                           ) ||
                           (sc?.IdMatch !== activeMatch?.idMatch && blockUI) ||
-                          // new Date(sc?.Date).getTime() <=
-                          //   new Date().getTime() ||
+                          new Date(sc?.Date).getTime() <=
+                            new Date().getTime() ||
                           new Date(sc?.Date).getTime() >
                             new Date(
                               new Date().setDate(new Date().getDate() + 1)
