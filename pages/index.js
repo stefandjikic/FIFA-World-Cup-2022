@@ -79,6 +79,7 @@ export default function Home({ scoreResults = [] }) {
     voterID,
     voterName
   ) => {
+    setBlockUI(true);
     setActiveMatch({
       idMatch,
       teamA,
@@ -205,7 +206,7 @@ export default function Home({ scoreResults = [] }) {
                           m?.data?.idMatch === sc?.IdMatch &&
                           m?.data?.voterID === user?.uid
                       ) ||
-                      blockUI
+                      (sc?.IdMatch !== activeMatch?.idMatch && blockUI)
                       // ||
                       // new Date(sc?.Date).getTime() <= new Date().getTime() ||
                       // new Date(sc?.Date).getTime() >
@@ -236,7 +237,7 @@ export default function Home({ scoreResults = [] }) {
                               m?.data?.idMatch === sc?.IdMatch &&
                               m?.data?.voterID === user?.uid
                           ) ||
-                          blockUI
+                          (sc?.IdMatch !== activeMatch?.idMatch && blockUI)
                           // ||
                           // new Date(sc?.Date).getTime() <=
                           //   new Date().getTime() ||
