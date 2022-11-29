@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useEffect } from "react";
 import { getFirestore, collection } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import {
@@ -18,6 +18,7 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
 } from "@chakra-ui/react";
 import Nav from "../components/layout/Nav";
 import { getAuth } from "firebase/auth";
@@ -25,14 +26,14 @@ import Link from "next/link";
 import { Login } from "../components/auth/Login";
 import { useAuthState } from "react-firebase-hooks/auth";
 import UserMatchesCard from "../components/matches/UserMatchesCard";
+import { SponsorModal } from "../components/sponsor/SponsorModal";
 
 const Competition = ({ scoreResults = [] }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const db = getFirestore();
   const collectionRef = collection(db, "matches");
   const authData = getAuth();
   // console.log(authData, "authdata");
-
-  const [userPoints, setUserPoints] = useState([]);
 
   const [user] = useAuthState(authData);
 
@@ -44,6 +45,18 @@ const Competition = ({ scoreResults = [] }) => {
   }));
   // console.log(matches, "matches");
   // console.log(scoreResults, "scoreResults");
+
+  useEffect(() => {
+    const consent = localStorage.getItem("consent");
+    if (!consent) {
+      onOpen();
+    }
+  }, [onOpen]);
+
+  const closeModal = () => {
+    localStorage.setItem("consent", "FIFA 2022 competition - novi sponzor");
+    onClose();
+  };
 
   const calculatePlayerPointPerGame = (selectedMatch, playersAnswer) => {
     let matchResult = "";
@@ -151,8 +164,6 @@ const Competition = ({ scoreResults = [] }) => {
     returnAllMatchesPerUser,
     returnUsersVotesData,
   ]);
-
-  console.log(parsedUsers, "parsedUsers");
 
   return (
     <Box bg="#EEEEE4">
@@ -283,6 +294,11 @@ const Competition = ({ scoreResults = [] }) => {
             </TabPanels>
           </Tabs>
         )}
+        <SponsorModal
+          isOpen={isOpen}
+          onClose={onClose}
+          closeModal={closeModal}
+        />
       </Container>
     </Box>
   );

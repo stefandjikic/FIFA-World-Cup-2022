@@ -42,7 +42,7 @@ const SponsorPage = () => {
             fontSize="4xl"
             fontWeight="bold"
           >
-            10 KG Najkvalitenijeg Meda!
+            1 KG Najkvalitenijeg Meda!
           </Text>
           <Text mt='4'>Za ostale učesike tu su i brojne utešne nagrade. U ovoj igri svi su dobitnici!</Text>
         </Container>
