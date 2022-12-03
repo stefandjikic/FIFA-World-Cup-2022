@@ -70,7 +70,14 @@ const Competition = ({ scoreResults = [] }) => {
     } else if (selectedMatch?.Home?.Score > selectedMatch.Away?.Score) {
       matchResult = selectedMatch.Home?.ShortClubName;
     } else if (selectedMatch?.Home?.Score === selectedMatch.Away?.Score) {
-      matchResult = "Nereseno";
+      if (
+        selectedMatch?.StageName[0]?.Description?.toLowerCase() ===
+        "first stage"
+      ) {
+        matchResult = "Nereseno";
+      } else {
+        matchResult = "Produzeci";
+      }
     }
     if (matchResult === "NOT_PLAYED") {
       return null;

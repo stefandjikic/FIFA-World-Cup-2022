@@ -264,13 +264,28 @@ export default function Home({ scoreResults = [] }) {
                       flexDirection={{ base: "column", md: "row" }}
                       justifyContent="space-between"
                     >
-                      <Radio value={sc?.Home?.ShortClubName}>
-                        {sc?.Home?.ShortClubName}
-                      </Radio>
-                      <Radio value="Nereseno">Nerešeno</Radio>
-                      <Radio value={sc?.Away?.ShortClubName}>
-                        {sc?.Away?.ShortClubName}
-                      </Radio>
+                      {sc?.StageName[0]?.Description?.toLowerCase() ===
+                      "first stage" ? (
+                        <>
+                          <Radio value={sc?.Home?.ShortClubName}>
+                            {sc?.Home?.ShortClubName}
+                          </Radio>
+                          <Radio value="Nereseno">Nerešeno</Radio>
+                          <Radio value={sc?.Away?.ShortClubName}>
+                            {sc?.Away?.ShortClubName}
+                          </Radio>
+                        </>
+                      ) : (
+                        <>
+                          <Radio value={sc?.Home?.ShortClubName}>
+                            {sc?.Home?.ShortClubName}
+                          </Radio>
+                          <Radio value="Produzeci">Proudžeci</Radio>
+                          <Radio value={sc?.Away?.ShortClubName}>
+                            {sc?.Away?.ShortClubName}
+                          </Radio>
+                        </>
+                      )}
                       <Button
                         mt={{ base: "5", md: "0" }}
                         disabled={
