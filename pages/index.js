@@ -280,7 +280,7 @@ export default function Home({ scoreResults = [] }) {
                           <Radio value={sc?.Home?.ShortClubName}>
                             {sc?.Home?.ShortClubName}
                           </Radio>
-                          <Radio value="Produzeci">Proudžeci</Radio>
+                          <Radio value="Produzeci">Produžeci</Radio>
                           <Radio value={sc?.Away?.ShortClubName}>
                             {sc?.Away?.ShortClubName}
                           </Radio>
