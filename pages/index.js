@@ -23,10 +23,17 @@ import {
   RadioGroup,
 } from "@chakra-ui/react";
 import { Login } from "../components/auth/Login";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home({ scoreResults = [] }) {
   const [activeMatch, setActiveMatch] = useState({});
+  const [activeScoreResults, setActiveScoreResults] = useState(
+    scoreResults.filter(
+      (filtered) =>
+        filtered?.StageName[0]?.Description?.toLowerCase() !== "first stage"
+    )
+  );
+  const [toggleAllMatches, setToggleAllMatches] = useState(false);
   const [blockUI, setBlockUI] = useState(false);
   const auth = getAuth();
   const db = getFirestore();
@@ -38,6 +45,19 @@ export default function Home({ scoreResults = [] }) {
     data: doc.data(),
     id: doc.id,
   }));
+
+  useEffect(() => {
+    if (toggleAllMatches) {
+      setActiveScoreResults(scoreResults);
+    } else {
+      setActiveScoreResults(
+        scoreResults.filter(
+          (filtered) =>
+            filtered?.StageName[0]?.Description?.toLowerCase() !== "first stage"
+        )
+      );
+    }
+  }, [scoreResults, toggleAllMatches]);
 
   // console.log(scoreResults, "scoreResults");
   // console.log(user?.uid, "user.uid");
@@ -179,14 +199,19 @@ export default function Home({ scoreResults = [] }) {
               Rezultati
             </Flex>
           </Link>
+          <Flex justifyContent="center" alignItems="center">
+            <Button onClick={() => setToggleAllMatches(!toggleAllMatches)}>
+              {toggleAllMatches ? "Prikaži poslednje" : "Prikaži sve"}
+            </Button>
+          </Flex>
           <Grid
             gridTemplateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
             justifyContent="space-between"
             gap="6"
             mt="5"
           >
-            {scoreResults?.length > 0 &&
-              scoreResults?.map((sc) => (
+            {activeScoreResults?.length > 0 &&
+              activeScoreResults?.map((sc) => (
                 <Box
                   key={sc.IdMatch}
                   mb="4"
@@ -280,7 +305,7 @@ export default function Home({ scoreResults = [] }) {
                           <Radio value={sc?.Home?.ShortClubName}>
                             {sc?.Home?.ShortClubName}
                           </Radio>
-                          <Radio value="Produzeci">Produžeci</Radio>
+                          {/* <Radio value="Produzeci">Produžeci</Radio> */}
                           <Radio value={sc?.Away?.ShortClubName}>
                             {sc?.Away?.ShortClubName}
                           </Radio>
