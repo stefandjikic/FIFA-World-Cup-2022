@@ -59,8 +59,8 @@ export default function Home({ scoreResults = [] }) {
     }
   }, [scoreResults, toggleAllMatches]);
 
-  // console.log(scoreResults, "scoreResults");
   // console.log(user?.uid, "user.uid");
+  // console.log(activeScoreResults, "activeScoreResults");
 
   // const checkTimeBeforeGameStart = (matchDate) => {
   //   var curTime = new Date();
@@ -286,7 +286,14 @@ export default function Home({ scoreResults = [] }) {
                   >
                     <Flex
                       mt="5"
-                      flexDirection={{ base: "column", md: "row" }}
+                      flexDirection={{
+                        base: "column",
+                        md:
+                          sc?.StageName[0]?.Description?.toLowerCase() !==
+                          "first stage"
+                            ? "column"
+                            : "row",
+                      }}
                       justifyContent="space-between"
                     >
                       {sc?.StageName[0]?.Description?.toLowerCase() ===
@@ -301,15 +308,25 @@ export default function Home({ scoreResults = [] }) {
                           </Radio>
                         </>
                       ) : (
-                        <>
-                          <Radio value={sc?.Home?.ShortClubName}>
-                            {sc?.Home?.ShortClubName}
-                          </Radio>
-                          {/* <Radio value="Produzeci">Produžeci</Radio> */}
-                          <Radio value={sc?.Away?.ShortClubName}>
-                            {sc?.Away?.ShortClubName}
-                          </Radio>
-                        </>
+                        <Flex flexDirection="column" mb="3">
+                          {sc?.Home?.ShortClubName && (
+                            <>
+                              <Radio value={sc?.Home?.ShortClubName + "_90"}>
+                                {sc?.Home?.ShortClubName + " (90min)"}
+                              </Radio>
+                              <Radio value={sc?.Home?.ShortClubName}>
+                                {sc?.Home?.ShortClubName + " (prolaz)"}
+                              </Radio>
+                              <Radio value="Nereseno">Nerešeno (90min)</Radio>
+                              <Radio value={sc?.Away?.ShortClubName + "_90"}>
+                                {sc?.Away?.ShortClubName + " (90min)"}
+                              </Radio>
+                              <Radio value={sc?.Away?.ShortClubName}>
+                                {sc?.Away?.ShortClubName + " (prolaz)"}
+                              </Radio>
+                            </>
+                          )}
+                        </Flex>
                       )}
                       <Button
                         mt={{ base: "5", md: "0" }}
