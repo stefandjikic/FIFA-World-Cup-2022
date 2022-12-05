@@ -27,7 +27,7 @@ import { useEffect, useState } from "react";
 
 export default function Home({ scoreResults = [] }) {
   const [activeMatch, setActiveMatch] = useState({});
-  const [matchesFromFirebaseCollection, setmatchesFromFirebaseCollection] = useState([]);
+  // const [matchesFromFirebaseCollection, setmatchesFromFirebaseCollection] = useState([]);
   const [activeScoreResults, setActiveScoreResults] = useState(
     scoreResults.filter(
       (filtered) =>
@@ -43,14 +43,19 @@ export default function Home({ scoreResults = [] }) {
   const { displayName = "" } = { ...user };
   const [matches, matchesLoading, matchesError] = useCollection(collectionRef);
 
-  useEffect(() => {
-    const matchesFromFB = matches?.docs.map((doc) => ({
-      data: doc.data(),
-      id: doc.id,
-    }));
-    setmatchesFromFirebaseCollection(matchesFromFB);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // useEffect(() => {
+  //   const matchesFromFB = matches?.docs.map((doc) => ({
+  //     data: doc.data(),
+  //     id: doc.id,
+  //   }));
+  //   setmatchesFromFirebaseCollection(matchesFromFB);
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [])
+
+  const matchesFromFirebaseCollection = matches?.docs.map((doc) => ({
+    data: doc.data(),
+    id: doc.id,
+  }));
   
 
   useEffect(() => {
