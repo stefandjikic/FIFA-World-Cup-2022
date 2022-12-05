@@ -23,7 +23,7 @@ import {
   RadioGroup,
 } from "@chakra-ui/react";
 import { Login } from "../components/auth/Login";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function Home({ scoreResults = [] }) {
   const [activeMatch, setActiveMatch] = useState({});
@@ -52,10 +52,15 @@ export default function Home({ scoreResults = [] }) {
   // // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [])
 
-  const matchesFromFirebaseCollection = matches?.docs.map((doc) => ({
+  // const matchesFromFirebaseCollection = matches?.docs.map((doc) => ({
+  //   data: doc.data(),
+  //   id: doc.id,
+  // }));
+
+  const matchesFromFirebaseCollection = useMemo(() => matches?.docs.map((doc) => ({
     data: doc.data(),
     id: doc.id,
-  }));
+  })), [matches?.docs])
   
 
   useEffect(() => {
