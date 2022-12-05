@@ -39,23 +39,26 @@ const Competition = ({ scoreResults = [] }) => {
 
   const [user] = useAuthState(authData);
 
-  const [matchesData, matchesLoading, matchesError] =
-    useCollection(collectionRef);
-  // const matches = matchesData?.docs.map((doc) => ({
-  //   data: doc.data(),
-  //   id: doc.id,
-  // }));
+  // TODO: THIS SHOULD BE FIXED!!!
+  // const [matchesData, matchesLoading, matchesError] =
+  //   useCollection(collectionRef);
+  // // const matches = matchesData?.docs.map((doc) => ({
+  // //   data: doc.data(),
+  // //   id: doc.id,
+  // // }));
 
-  useEffect(() => {
-    const m = matchesData?.docs.map((doc) => ({
-      data: doc.data(),
-      id: doc.id,
-    }));
-    setMatches(m)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // useEffect(() => {
+  //   const m = matchesData?.docs.map((doc) => ({
+  //     data: doc.data(),
+  //     id: doc.id,
+  //   }));
+  //   setMatches(m)
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [])
 
-  console.log(matchesData, "matchesData")
+  // END OF THE COMMENT
+
+  // console.log(matchesData, "matchesData")
   
   // console.log(matches, "matches");
   // console.log(scoreResults, "scoreResults");
