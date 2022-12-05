@@ -66,7 +66,6 @@ const Competition = ({ scoreResults = [] }) => {
       })),
     [matchesData?.docs]
   );
-  console.log(matches, 'matches');
 
   // // const matches = matchesData?.docs.map((doc) => ({
   // //   data: doc.data(),
