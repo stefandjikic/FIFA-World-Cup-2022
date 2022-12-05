@@ -45,6 +45,7 @@ export default function Home({ scoreResults = [] }) {
     data: doc.data(),
     id: doc.id,
   }));
+  console.log(matchesFromFirebaseCollection, 'matchesFromFirebase');
 
   useEffect(() => {
     if (toggleAllMatches) {
@@ -154,10 +155,17 @@ export default function Home({ scoreResults = [] }) {
             Učitavanje...
           </Box>
         ))}
-      {error && (
-        <Box textAlign="center">Desila se greška. Pokušajte kasnije.</Box>
+      {!loading && error && (
+        <Box textAlign="center">
+          Desila se greška sa nalogom. Pokušajte kasnije.
+        </Box>
       )}
       {!loading && !user && <Login />}
+      {matchesError && !loading && (
+        <Box mt="5" textAlign="center">
+          Desila se greška prilikom učitavanja mečeva. Molimo pokušajte kasnije.
+        </Box>
+      )}
       {user && matches && (
         <Container maxW="container.lg">
           <Heading mt="5" textAlign="center" as="h1">

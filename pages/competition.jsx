@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { getFirestore, collection } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import {
@@ -29,6 +29,8 @@ import UserMatchesCard from "../components/matches/UserMatchesCard";
 import { SponsorModal } from "../components/sponsor/SponsorModal";
 
 const Competition = ({ scoreResults = [] }) => {
+  const disableUI = true;
+  const [matches, setMatches] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const db = getFirestore();
   const collectionRef = collection(db, "matches");
@@ -39,10 +41,22 @@ const Competition = ({ scoreResults = [] }) => {
 
   const [matchesData, matchesLoading, matchesError] =
     useCollection(collectionRef);
-  const matches = matchesData?.docs.map((doc) => ({
-    data: doc.data(),
-    id: doc.id,
-  }));
+  // const matches = matchesData?.docs.map((doc) => ({
+  //   data: doc.data(),
+  //   id: doc.id,
+  // }));
+
+  useEffect(() => {
+    const m = matchesData?.docs.map((doc) => ({
+      data: doc.data(),
+      id: doc.id,
+    }));
+    setMatches(m)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  console.log(matchesData, "matchesData")
+  
   // console.log(matches, "matches");
   // console.log(scoreResults, "scoreResults");
 
@@ -58,35 +72,145 @@ const Competition = ({ scoreResults = [] }) => {
     onClose();
   };
 
-  const calculatePlayerPointPerGame = (selectedMatch, playersAnswer) => {
-    let matchResult = "";
-    if (
-      selectedMatch?.Home?.Score === null &&
-      selectedMatch?.Home?.Score === null
-    ) {
-      matchResult = "NOT_PLAYED";
-    } else if (selectedMatch?.Home?.Score < selectedMatch.Away?.Score) {
-      matchResult = selectedMatch.Away?.ShortClubName;
-    } else if (selectedMatch?.Home?.Score > selectedMatch.Away?.Score) {
-      matchResult = selectedMatch.Home?.ShortClubName;
-    } else if (selectedMatch?.Home?.Score === selectedMatch.Away?.Score) {
+  const calculatePlayerPointPerGame = useCallback(
+    (selectedMatch, playersAnswer) => {
       if (
-        selectedMatch?.StageName[0]?.Description?.toLowerCase() ===
-        "first stage"
+        selectedMatch?.StageName[0]?.Description?.toLowerCase() === "first stage"
       ) {
-        matchResult = "Nereseno";
+        let matchResult = "";
+        if (
+          selectedMatch?.Home?.Score === null &&
+          selectedMatch?.Home?.Score === null
+        ) {
+          matchResult = "NOT_PLAYED";
+        } else if (selectedMatch?.Home?.Score < selectedMatch.Away?.Score) {
+          matchResult = selectedMatch.Away?.ShortClubName;
+        } else if (selectedMatch?.Home?.Score > selectedMatch.Away?.Score) {
+          matchResult = selectedMatch.Home?.ShortClubName;
+        } else if (selectedMatch?.Home?.Score === selectedMatch.Away?.Score) {
+          matchResult = "Nereseno";
+        }
+        if (matchResult === "NOT_PLAYED") {
+          return null;
+        } else if (playersAnswer !== matchResult) {
+          return 0;
+        } else if (playersAnswer === matchResult) {
+          return 1;
+        }
       } else {
-        matchResult = "Produzeci";
+        let matchResult = "";
+        let extraTime = false;
+        if (
+          selectedMatch?.Home?.Score === null &&
+          selectedMatch?.Home?.Score === null
+        ) {
+          matchResult = "NOT_PLAYED";
+        } else if (
+          selectedMatch?.ResultType === 1 &&
+          selectedMatch?.Home?.Score < selectedMatch.Away?.Score
+        ) {
+          matchResult = selectedMatch.Away?.ShortClubName + '_90';
+          extraTime = true;
+        } else if (
+          selectedMatch?.ResultType === 1 &&
+          selectedMatch?.Home?.Score > selectedMatch.Away?.Score
+        ) {
+          matchResult = selectedMatch.Home?.ShortClubName + '_90';
+          extraTime = true;
+        } else if (
+          selectedMatch?.ResultType === 1 &&
+          selectedMatch?.Home?.Score === selectedMatch.Away?.Score
+        ) {
+          matchResult = "Nereseno";
+          extraTime = true;
+        } else if (selectedMatch?.ResultType !== 1 && selectedMatch?.Home?.Score < selectedMatch.Away?.Score) {
+          matchResult = selectedMatch.Away?.ShortClubName;
+        } else if (selectedMatch?.ResultType !== 1 && selectedMatch?.Home?.Score > selectedMatch.Away?.Score) {
+          matchResult = selectedMatch.Away?.ShortClubName;
+        }
+  
+        if (matchResult === "NOT_PLAYED") {
+          return null;
+        } else if (playersAnswer !== matchResult) {
+          return 0;
+        } else if (playersAnswer === matchResult && extraTime) {
+          return 2;
+        } else if (playersAnswer === matchResult && !extraTime) {
+          return 1;
+        }
       }
-    }
-    if (matchResult === "NOT_PLAYED") {
-      return null;
-    } else if (playersAnswer !== matchResult) {
-      return 0;
-    } else if (playersAnswer === matchResult) {
-      return 1;
-    }
-  };
+    },
+    [],
+  )
+  
+
+  // const calculatePlayerPointPerGame = (selectedMatch, playersAnswer) => {
+  //   if (
+  //     selectedMatch?.StageName[0]?.Description?.toLowerCase() === "first stage"
+  //   ) {
+  //     let matchResult = "";
+  //     if (
+  //       selectedMatch?.Home?.Score === null &&
+  //       selectedMatch?.Home?.Score === null
+  //     ) {
+  //       matchResult = "NOT_PLAYED";
+  //     } else if (selectedMatch?.Home?.Score < selectedMatch.Away?.Score) {
+  //       matchResult = selectedMatch.Away?.ShortClubName;
+  //     } else if (selectedMatch?.Home?.Score > selectedMatch.Away?.Score) {
+  //       matchResult = selectedMatch.Home?.ShortClubName;
+  //     } else if (selectedMatch?.Home?.Score === selectedMatch.Away?.Score) {
+  //       matchResult = "Nereseno";
+  //     }
+  //     if (matchResult === "NOT_PLAYED") {
+  //       return null;
+  //     } else if (playersAnswer !== matchResult) {
+  //       return 0;
+  //     } else if (playersAnswer === matchResult) {
+  //       return 1;
+  //     }
+  //   } else {
+  //     let matchResult = "";
+  //     let extraTime = false;
+  //     if (
+  //       selectedMatch?.Home?.Score === null &&
+  //       selectedMatch?.Home?.Score === null
+  //     ) {
+  //       matchResult = "NOT_PLAYED";
+  //     } else if (
+  //       selectedMatch?.ResultType === 1 &&
+  //       selectedMatch?.Home?.Score < selectedMatch.Away?.Score
+  //     ) {
+  //       matchResult = selectedMatch.Away?.ShortClubName + '_90';
+  //       extraTime = true;
+  //     } else if (
+  //       selectedMatch?.ResultType === 1 &&
+  //       selectedMatch?.Home?.Score > selectedMatch.Away?.Score
+  //     ) {
+  //       matchResult = selectedMatch.Home?.ShortClubName + '_90';
+  //       extraTime = true;
+  //     } else if (
+  //       selectedMatch?.ResultType === 1 &&
+  //       selectedMatch?.Home?.Score === selectedMatch.Away?.Score
+  //     ) {
+  //       matchResult = "Nereseno";
+  //       extraTime = true;
+  //     } else if (selectedMatch?.ResultType !== 1 && selectedMatch?.Home?.Score < selectedMatch.Away?.Score) {
+  //       matchResult = selectedMatch.Away?.ShortClubName;
+  //     } else if (selectedMatch?.ResultType !== 1 && selectedMatch?.Home?.Score > selectedMatch.Away?.Score) {
+  //       matchResult = selectedMatch.Away?.ShortClubName;
+  //     }
+
+  //     if (matchResult === "NOT_PLAYED") {
+  //       return null;
+  //     } else if (playersAnswer !== matchResult) {
+  //       return 0;
+  //     } else if (playersAnswer === matchResult && extraTime) {
+  //       return 2;
+  //     } else if (playersAnswer === matchResult && !extraTime) {
+  //       return 1;
+  //     }
+  //   }
+  // };
 
   const returnUsersVotesData = useMemo(() => {
     let matchesPlayedbyUSers = [];
@@ -112,7 +236,7 @@ const Competition = ({ scoreResults = [] }) => {
       });
     });
     return matchesPlayedbyUSers?.sort((a, b) => a?.matchDate < b?.matchDate);
-  }, [matches, scoreResults]);
+  }, [calculatePlayerPointPerGame, matches, scoreResults]);
 
   const claculateTotalPointsPerUser = useCallback(
     (userID) => {
@@ -175,7 +299,8 @@ const Competition = ({ scoreResults = [] }) => {
   return (
     <Box bg="#EEEEE4">
       <Nav />
-      <Container maxW="container.lg">
+    {!disableUI ? (
+        <Container maxW="container.lg">
         {matchesLoading && (
           <Box textAlign="center" mt="10">
             Učitava se...
@@ -307,6 +432,9 @@ const Competition = ({ scoreResults = [] }) => {
           closeModal={closeModal}
         />
       </Container>
+    ) : (
+      <Box textAlign='center' mt='5' fontSize='5xl'>RADOVI U TOKU</Box>
+    )}
     </Box>
   );
 };
