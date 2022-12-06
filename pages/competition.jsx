@@ -153,15 +153,15 @@ const Competition = ({ scoreResults = [] }) => {
           matchResult = "Nereseno";
           extraTime = true;
         } else if (
-          selectedMatch?.ResultType !== 1 &&
+          // selectedMatch?.ResultType !== 1 &&
           selectedMatch?.Home?.Score < selectedMatch.Away?.Score
         ) {
           matchResult = selectedMatch.Away?.ShortClubName;
         } else if (
-          selectedMatch?.ResultType !== 1 &&
+          // selectedMatch?.ResultType !== 1 &&
           selectedMatch?.Home?.Score > selectedMatch.Away?.Score
         ) {
-          matchResult = selectedMatch.Away?.ShortClubName;
+          matchResult = selectedMatch.Home?.ShortClubName;
         }
 
         if (matchResult === "NOT_PLAYED") {
